@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="BenaiahModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityType Name="funcionaria">
+    <Key>
+      <PropertyRef Name="ID_func" />
+    </Key>
+    <Property Name="ID_func" Type="Int32" Nullable="false" />
+    <Property Name="setor" Type="String" MaxLength="30" FixedLength="true" Unicode="true" />
+    <Property Name="nome" Type="String" MaxLength="60" FixedLength="true" Unicode="true" />
+    <Property Name="senha" Type="String" MaxLength="20" FixedLength="true" Unicode="true" />
+  </EntityType>
+  <EntityType Name="Respostas">
+    <Key>
+      <PropertyRef Name="ID" />
+      <PropertyRef Name="IDfunc" />
+    </Key>
+    <Property Name="ID" Type="Int32" Nullable="false" />
+    <Property Name="IDfunc" Type="Int32" Nullable="false" />
+    <Property Name="q1" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Name="q2" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Name="q3" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Name="q4" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Name="q5" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Name="q6" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Name="q7" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Name="q8" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Name="q9" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Name="q10" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Name="q11" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Name="q12" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Name="q13" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Name="DataHoraResposta" Type="DateTime" Precision="3" />
+  </EntityType>
+  <EntityContainer Name="BenaiahEntities" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="funcionaria" EntityType="Self.funcionaria" />
+    <EntitySet Name="Respostas" EntityType="Self.Respostas" />
+  </EntityContainer>
+</Schema>

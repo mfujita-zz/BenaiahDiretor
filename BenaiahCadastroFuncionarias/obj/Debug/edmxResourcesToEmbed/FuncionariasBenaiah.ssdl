@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="BenaiahModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityType Name="funcionaria">
+    <Key>
+      <PropertyRef Name="ID_func" />
+    </Key>
+    <Property Name="ID_func" Type="int" Nullable="false" />
+    <Property Name="setor" Type="nchar" MaxLength="30" />
+    <Property Name="nome" Type="nchar" MaxLength="60" />
+    <Property Name="senha" Type="nchar" MaxLength="20" />
+  </EntityType>
+  <!--Errors Found During Generation:
+warning 6002: The table/view 'Benaiah.dbo.Respostas' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+  <EntityType Name="Respostas">
+    <Key>
+      <PropertyRef Name="ID" />
+      <PropertyRef Name="IDfunc" />
+    </Key>
+    <Property Name="ID" Type="int" Nullable="false" />
+    <Property Name="IDfunc" Type="int" Nullable="false" />
+    <Property Name="q1" Type="varchar(max)" />
+    <Property Name="q2" Type="varchar(max)" />
+    <Property Name="q3" Type="varchar(max)" />
+    <Property Name="q4" Type="varchar(max)" />
+    <Property Name="q5" Type="varchar(max)" />
+    <Property Name="q6" Type="varchar(max)" />
+    <Property Name="q7" Type="varchar(max)" />
+    <Property Name="q8" Type="varchar(max)" />
+    <Property Name="q9" Type="varchar(max)" />
+    <Property Name="q10" Type="varchar(max)" />
+    <Property Name="q11" Type="varchar(max)" />
+    <Property Name="q12" Type="varchar(max)" />
+    <Property Name="q13" Type="varchar(max)" />
+    <Property Name="DataHoraResposta" Type="datetime" />
+  </EntityType>
+  <EntityContainer Name="BenaiahModelStoreContainer">
+    <EntitySet Name="funcionaria" EntityType="Self.funcionaria" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Respostas" EntityType="Self.Respostas" store:Type="Tables" store:Schema="dbo">
+      <DefiningQuery>SELECT 
+    [Respostas].[ID] AS [ID], 
+    [Respostas].[IDfunc] AS [IDfunc], 
+    [Respostas].[q1] AS [q1], 
+    [Respostas].[q2] AS [q2], 
+    [Respostas].[q3] AS [q3], 
+    [Respostas].[q4] AS [q4], 
+    [Respostas].[q5] AS [q5], 
+    [Respostas].[q6] AS [q6], 
+    [Respostas].[q7] AS [q7], 
+    [Respostas].[q8] AS [q8], 
+    [Respostas].[q9] AS [q9], 
+    [Respostas].[q10] AS [q10], 
+    [Respostas].[q11] AS [q11], 
+    [Respostas].[q12] AS [q12], 
+    [Respostas].[q13] AS [q13], 
+    [Respostas].[DataHoraResposta] AS [DataHoraResposta]
+    FROM [dbo].[Respostas] AS [Respostas]</DefiningQuery>
+    </EntitySet>
+  </EntityContainer>
+</Schema>

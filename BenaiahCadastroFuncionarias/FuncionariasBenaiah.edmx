@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="BenaiahModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="funcionaria">
+          <Key>
+            <PropertyRef Name="ID_func" />
+          </Key>
+          <Property Name="ID_func" Type="int" Nullable="false" />
+          <Property Name="setor" Type="nchar" MaxLength="30" />
+          <Property Name="nome" Type="nchar" MaxLength="60" />
+          <Property Name="senha" Type="nchar" MaxLength="20" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'Benaiah.dbo.Respostas' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="Respostas">
+          <Key>
+            <PropertyRef Name="ID" />
+            <PropertyRef Name="IDfunc" />
+          </Key>
+          <Property Name="ID" Type="int" Nullable="false" />
+          <Property Name="IDfunc" Type="int" Nullable="false" />
+          <Property Name="q1" Type="varchar(max)" />
+          <Property Name="q2" Type="varchar(max)" />
+          <Property Name="q3" Type="varchar(max)" />
+          <Property Name="q4" Type="varchar(max)" />
+          <Property Name="q5" Type="varchar(max)" />
+          <Property Name="q6" Type="varchar(max)" />
+          <Property Name="q7" Type="varchar(max)" />
+          <Property Name="q8" Type="varchar(max)" />
+          <Property Name="q9" Type="varchar(max)" />
+          <Property Name="q10" Type="varchar(max)" />
+          <Property Name="q11" Type="varchar(max)" />
+          <Property Name="q12" Type="varchar(max)" />
+          <Property Name="q13" Type="varchar(max)" />
+          <Property Name="DataHoraResposta" Type="datetime" />
+        </EntityType>
+        <EntityContainer Name="BenaiahModelStoreContainer">
+          <EntitySet Name="funcionaria" EntityType="Self.funcionaria" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Respostas" EntityType="Self.Respostas" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [Respostas].[ID] AS [ID], 
+    [Respostas].[IDfunc] AS [IDfunc], 
+    [Respostas].[q1] AS [q1], 
+    [Respostas].[q2] AS [q2], 
+    [Respostas].[q3] AS [q3], 
+    [Respostas].[q4] AS [q4], 
+    [Respostas].[q5] AS [q5], 
+    [Respostas].[q6] AS [q6], 
+    [Respostas].[q7] AS [q7], 
+    [Respostas].[q8] AS [q8], 
+    [Respostas].[q9] AS [q9], 
+    [Respostas].[q10] AS [q10], 
+    [Respostas].[q11] AS [q11], 
+    [Respostas].[q12] AS [q12], 
+    [Respostas].[q13] AS [q13], 
+    [Respostas].[DataHoraResposta] AS [DataHoraResposta]
+    FROM [dbo].[Respostas] AS [Respostas]</DefiningQuery>
+          </EntitySet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="BenaiahModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="funcionaria">
+          <Key>
+            <PropertyRef Name="ID_func" />
+          </Key>
+          <Property Name="ID_func" Type="Int32" Nullable="false" />
+          <Property Name="setor" Type="String" MaxLength="30" FixedLength="true" Unicode="true" />
+          <Property Name="nome" Type="String" MaxLength="60" FixedLength="true" Unicode="true" />
+          <Property Name="senha" Type="String" MaxLength="20" FixedLength="true" Unicode="true" />
+        </EntityType>
+        <EntityType Name="Respostas">
+          <Key>
+            <PropertyRef Name="ID" />
+            <PropertyRef Name="IDfunc" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" />
+          <Property Name="IDfunc" Type="Int32" Nullable="false" />
+          <Property Name="q1" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="q2" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="q3" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="q4" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="q5" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="q6" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="q7" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="q8" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="q9" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="q10" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="q11" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="q12" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="q13" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="DataHoraResposta" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityContainer Name="BenaiahEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="funcionaria" EntityType="Self.funcionaria" />
+          <EntitySet Name="Respostas" EntityType="Self.Respostas" />
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="BenaiahModelStoreContainer" CdmEntityContainer="BenaiahEntities">
+          <EntitySetMapping Name="funcionaria">
+            <EntityTypeMapping TypeName="BenaiahModel.funcionaria">
+              <MappingFragment StoreEntitySet="funcionaria">
+                <ScalarProperty Name="ID_func" ColumnName="ID_func" />
+                <ScalarProperty Name="setor" ColumnName="setor" />
+                <ScalarProperty Name="nome" ColumnName="nome" />
+                <ScalarProperty Name="senha" ColumnName="senha" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Respostas">
+            <EntityTypeMapping TypeName="BenaiahModel.Respostas">
+              <MappingFragment StoreEntitySet="Respostas">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="IDfunc" ColumnName="IDfunc" />
+                <ScalarProperty Name="q1" ColumnName="q1" />
+                <ScalarProperty Name="q2" ColumnName="q2" />
+                <ScalarProperty Name="q3" ColumnName="q3" />
+                <ScalarProperty Name="q4" ColumnName="q4" />
+                <ScalarProperty Name="q5" ColumnName="q5" />
+                <ScalarProperty Name="q6" ColumnName="q6" />
+                <ScalarProperty Name="q7" ColumnName="q7" />
+                <ScalarProperty Name="q8" ColumnName="q8" />
+                <ScalarProperty Name="q9" ColumnName="q9" />
+                <ScalarProperty Name="q10" ColumnName="q10" />
+                <ScalarProperty Name="q11" ColumnName="q11" />
+                <ScalarProperty Name="q12" ColumnName="q12" />
+                <ScalarProperty Name="q13" ColumnName="q13" />
+                <ScalarProperty Name="DataHoraResposta" ColumnName="DataHoraResposta" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

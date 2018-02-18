@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="BenaiahModelStoreContainer" CdmEntityContainer="BenaiahEntities">
+    <EntitySetMapping Name="funcionaria">
+      <EntityTypeMapping TypeName="BenaiahModel.funcionaria">
+        <MappingFragment StoreEntitySet="funcionaria">
+          <ScalarProperty Name="ID_func" ColumnName="ID_func" />
+          <ScalarProperty Name="setor" ColumnName="setor" />
+          <ScalarProperty Name="nome" ColumnName="nome" />
+          <ScalarProperty Name="senha" ColumnName="senha" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Respostas">
+      <EntityTypeMapping TypeName="BenaiahModel.Respostas">
+        <MappingFragment StoreEntitySet="Respostas">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="IDfunc" ColumnName="IDfunc" />
+          <ScalarProperty Name="q1" ColumnName="q1" />
+          <ScalarProperty Name="q2" ColumnName="q2" />
+          <ScalarProperty Name="q3" ColumnName="q3" />
+          <ScalarProperty Name="q4" ColumnName="q4" />
+          <ScalarProperty Name="q5" ColumnName="q5" />
+          <ScalarProperty Name="q6" ColumnName="q6" />
+          <ScalarProperty Name="q7" ColumnName="q7" />
+          <ScalarProperty Name="q8" ColumnName="q8" />
+          <ScalarProperty Name="q9" ColumnName="q9" />
+          <ScalarProperty Name="q10" ColumnName="q10" />
+          <ScalarProperty Name="q11" ColumnName="q11" />
+          <ScalarProperty Name="q12" ColumnName="q12" />
+          <ScalarProperty Name="q13" ColumnName="q13" />
+          <ScalarProperty Name="DataHoraResposta" ColumnName="DataHoraResposta" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping>
