@@ -195,7 +195,13 @@ namespace BenaiahCadastroFuncionarias
                     nomeAvaliada = reader["nome"].ToString().Trim();
                     IDfuncAvaliada = Convert.ToInt16(reader["IDfunc"].ToString().Trim());
                     IDsetorAvaliada = Convert.ToInt16(reader["IDsetor"].ToString().Trim());
+
                     RealizaQueries(nomeAvaliada, IDfuncAvaliada, IDsetorAvaliada);
+
+                    if (IDsetorAvaliada == 4)
+                    {
+                        RealizaQueries2(nomeAvaliada, IDfuncAvaliada, IDsetorAvaliada);
+                    }
                 }
             }
 
@@ -224,7 +230,7 @@ namespace BenaiahCadastroFuncionarias
                 sw.WriteLine("<p>" + pergunta);
                 foreach (var resposta in answer1)
                 {
-                    for (int IDsetorAvaliadora = 0; IDsetorAvaliadora <= 5; IDsetorAvaliadora++)
+                    for (int IDsetorAvaliadora = 1; IDsetorAvaliadora <= 5; IDsetorAvaliadora++)
                     {
                         SqlCommand comando = new SqlCommand("select count(*) as frequencia from Resposta, Funcionaria where Funcionaria.IDfunc = resposta.IDfuncAvaliada and IDfuncAvaliada = @IDfuncAvaliada and IDsetorAvaliadora = @IDsetorAvaliadora and pergunta = @pergunta and resposta = @resposta", conexao);
                         comando.Parameters.AddWithValue("@IDfuncAvaliada", IDfuncAvaliada);
@@ -281,60 +287,149 @@ namespace BenaiahCadastroFuncionarias
                 tot3 = Coz3 + enf3 + sge3 + tec3 + out3;
                 tot4 = Coz4 + enf4 + sge4 + tec4 + out4;
 
-                FazTabela(IDsetorAvaliada, sw);
+                FazTabela(IDsetorAvaliada, answer1, sw);
 
                 sw.WriteLine("</table>");
-
-                megaTotalizador += tot1 + tot2 + tot3 + tot4;
             }
 
-            sw.WriteLine("<p>");
             sw.WriteLine("</body>");
             sw.WriteLine("</html>");
             sw.Close();
         }
 
-        private void FazTabela(int IDsetorAvaliada, StreamWriter sw)
+        private void RealizaQueries2(string nome, int IDfuncAvaliada, int IDsetorAvaliada)
+        {
+            AcessoBancoDeDados bd = new AcessoBancoDeDados();
+            SqlConnection conexao = new SqlConnection(bd.BancoDados());
+            conexao.Open();
+
+            FileStream fsIndividual = new FileStream(nome + "2.html", FileMode.Create);
+            StreamWriter sw = new StreamWriter(fsIndividual);
+            sw.WriteLine("<html>");
+            sw.WriteLine("<meta charset=UTF8>");
+            sw.WriteLine("<body>");
+            sw.WriteLine("<style>");
+            sw.WriteLine("td { text-align:center; width: 160px; }");
+            sw.WriteLine("</style>");
+            sw.WriteLine("<h2><div align=center>" + nome + "</div></h2>");
+            sw.WriteLine("<p>");
+
+            foreach (var pergunta in question2)
+            {
+                sw.WriteLine("<p>" + pergunta);
+                foreach (var resposta in answer2)
+                {
+                    for (int IDsetorAvaliadora = 1; IDsetorAvaliadora <= 5; IDsetorAvaliadora++)
+                    {
+                        SqlCommand comando = new SqlCommand("select count(*) as frequencia from Resposta, Funcionaria where Funcionaria.IDfunc = resposta.IDfuncAvaliada and IDfuncAvaliada = @IDfuncAvaliada and IDsetorAvaliadora = @IDsetorAvaliadora and pergunta = @pergunta and resposta = @resposta", conexao);
+                        comando.Parameters.AddWithValue("@IDfuncAvaliada", IDfuncAvaliada);
+                        comando.Parameters.AddWithValue("@IDsetorAvaliadora", IDsetorAvaliadora);
+                        comando.Parameters.AddWithValue("@pergunta", pergunta);
+                        comando.Parameters.AddWithValue("@resposta", resposta);
+                        using (SqlDataReader reader = comando.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+
+                                if (IDsetorAvaliadora == 1)
+                                {
+                                    if (resposta.Equals(answer2[0])) { Coz1 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+                                    else if (resposta.Equals(answer2[1])) { Coz2 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+                                    else if (resposta.Equals(answer2[2])) { Coz3 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+                                    else if (resposta.Equals(answer2[3])) { Coz4 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+                                }
+                                if (IDsetorAvaliadora == 2)
+                                {
+                                    if (resposta.Equals(answer2[0])) { enf1 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+                                    else if (resposta.Equals(answer2[1])) { enf2 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+                                    else if (resposta.Equals(answer2[2])) { enf3 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+                                    else if (resposta.Equals(answer2[3])) { enf4 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+                                }
+                                if (IDsetorAvaliadora == 3)
+                                {
+                                    if (resposta.Equals(answer2[0])) { sge1 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+                                    else if (resposta.Equals(answer2[1])) { sge2 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+                                    else if (resposta.Equals(answer2[2])) { sge3 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+                                    else if (resposta.Equals(answer2[3])) { sge4 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+                                }
+                                if (IDsetorAvaliadora == 4)
+                                {
+                                    if (resposta.Equals(answer2[0])) { tec1 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+                                    else if (resposta.Equals(answer2[1])) { tec2 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+                                    else if (resposta.Equals(answer2[2])) { tec3 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+                                    else if (resposta.Equals(answer2[3])) { tec4 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+                                }
+                                if (IDsetorAvaliadora == 5)
+                                {
+                                    if (resposta.Equals(answer2[0])) { out1 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+                                    else if (resposta.Equals(answer2[1])) { out2 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+                                    else if (resposta.Equals(answer2[2])) { out3 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+                                    else if (resposta.Equals(answer2[3])) { out4 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                sw.WriteLine("<table border=1>");
+                sw.Flush();
+                tot1 = Coz1 + enf1 + sge1 + tec1 + out1;
+                tot2 = Coz2 + enf2 + sge2 + tec2 + out2;
+                tot3 = Coz3 + enf3 + sge3 + tec3 + out3;
+                tot4 = Coz4 + enf4 + sge4 + tec4 + out4;
+
+                FazTabela(IDsetorAvaliada, answer2, sw);
+
+                sw.WriteLine("</table>");
+            }
+            sw.WriteLine("</body>");
+            sw.WriteLine("</html>");
+            sw.Close();
+        }
+
+
+
+        private void FazTabela(int IDsetorAvaliada, List<string> resp, StreamWriter sw)
         {
             if (IDsetorAvaliada.Equals(1)) //"Cozinha"))
             {
                 sw.WriteLine("<tr><th>Resposta</th><th>Total</th> <th bgcolor=#ffff00>Cozinha</th> <th>Enfermagem</th><th>Serviços gerais</th><th>Técnica</th><th>Outros</th></tr>");
-                sw.WriteLine("<tr><td align=\"left\">" + answer1[0] + "</td><td>" + tot1 + "</td><td bgcolor=#ffff00>" + Coz1 + "</td><td>" + enf1 + "</td><td>" + sge1 + "</td><td>" + tec1 + "</td><td>" + out1 + "</td></tr>");
-                sw.WriteLine("<tr><td align=\"left\">" + answer1[1] + "</td><td>" + tot2 + "</td><td bgcolor=#ffff00>" + Coz2 + "</td><td>" + enf2 + "</td><td>" + sge2 + "</td><td>" + tec2 + "</td><td>" + out2 + "</td></tr>");
-                sw.WriteLine("<tr><td align=\"left\">" + answer1[2] + "</td><td>" + tot3 + "</td><td bgcolor=#ffff00>" + Coz3 + "</td><td>" + enf3 + "</td><td>" + sge3 + "</td><td>" + tec3 + "</td><td>" + out3 + "</td></tr>");
-                sw.WriteLine("<tr><td align=\"left\">" + answer1[3] + "</td><td>" + tot4 + "</td><td bgcolor=#ffff00>" + Coz4 + "</td><td>" + enf4 + "</td><td>" + sge4 + "</td><td>" + tec4 + "</td><td>" + out4 + "</td></tr>");
+                sw.WriteLine("<tr><td align=\"left\">" + resp[0] + "</td><td>" + tot1 + "</td><td bgcolor=#ffff00>" + Coz1 + "</td><td>" + enf1 + "</td><td>" + sge1 + "</td><td>" + tec1 + "</td><td>" + out1 + "</td></tr>");
+                sw.WriteLine("<tr><td align=\"left\">" + resp[1] + "</td><td>" + tot2 + "</td><td bgcolor=#ffff00>" + Coz2 + "</td><td>" + enf2 + "</td><td>" + sge2 + "</td><td>" + tec2 + "</td><td>" + out2 + "</td></tr>");
+                sw.WriteLine("<tr><td align=\"left\">" + resp[2] + "</td><td>" + tot3 + "</td><td bgcolor=#ffff00>" + Coz3 + "</td><td>" + enf3 + "</td><td>" + sge3 + "</td><td>" + tec3 + "</td><td>" + out3 + "</td></tr>");
+                sw.WriteLine("<tr><td align=\"left\">" + resp[3] + "</td><td>" + tot4 + "</td><td bgcolor=#ffff00>" + Coz4 + "</td><td>" + enf4 + "</td><td>" + sge4 + "</td><td>" + tec4 + "</td><td>" + out4 + "</td></tr>");
             }
             else if (IDsetorAvaliada.Equals(2)) //"Enfermagem"))
             {
                 sw.WriteLine("<tr><th>Resposta</th><th>Total</th><th>Cozinha</th><th bgcolor=#00ff00>Enfermagem</th><th>Serviços gerais</th><th>Técnica</th><th>Outros</th></tr>");
-                sw.WriteLine("<tr><td align=\"left\">" + answer1[0] + "</td><td>" + tot1 + "</td><td>" + Coz1 + "</td><td bgcolor=#00ff00>" + enf1 + "</td><td>" + sge1 + "</td><td>" + tec1 + "</td><td>" + out1 + "</td></tr>");
-                sw.WriteLine("<tr><td align=\"left\">" + answer1[1] + "</td><td>" + tot2 + "</td><td>" + Coz2 + "</td><td bgcolor=#00ff00>" + enf2 + "</td><td>" + sge2 + "</td><td>" + tec2 + "</td><td>" + out2 + "</td></tr>");
-                sw.WriteLine("<tr><td align=\"left\">" + answer1[2] + "</td><td>" + tot3 + "</td><td>" + Coz3 + "</td><td bgcolor=#00ff00>" + enf3 + "</td><td>" + sge3 + "</td><td>" + tec3 + "</td><td>" + out3 + "</td></tr>");
-                sw.WriteLine("<tr><td align=\"left\">" + answer1[3] + "</td><td>" + tot4 + "</td><td>" + Coz4 + "</td><td bgcolor=#00ff00>" + enf4 + "</td><td>" + sge4 + "</td><td>" + tec4 + "</td><td>" + out4 + "</td></tr>");
+                sw.WriteLine("<tr><td align=\"left\">" + resp[0] + "</td><td>" + tot1 + "</td><td>" + Coz1 + "</td><td bgcolor=#00ff00>" + enf1 + "</td><td>" + sge1 + "</td><td>" + tec1 + "</td><td>" + out1 + "</td></tr>");
+                sw.WriteLine("<tr><td align=\"left\">" + resp[1] + "</td><td>" + tot2 + "</td><td>" + Coz2 + "</td><td bgcolor=#00ff00>" + enf2 + "</td><td>" + sge2 + "</td><td>" + tec2 + "</td><td>" + out2 + "</td></tr>");
+                sw.WriteLine("<tr><td align=\"left\">" + resp[2] + "</td><td>" + tot3 + "</td><td>" + Coz3 + "</td><td bgcolor=#00ff00>" + enf3 + "</td><td>" + sge3 + "</td><td>" + tec3 + "</td><td>" + out3 + "</td></tr>");
+                sw.WriteLine("<tr><td align=\"left\">" + resp[3] + "</td><td>" + tot4 + "</td><td>" + Coz4 + "</td><td bgcolor=#00ff00>" + enf4 + "</td><td>" + sge4 + "</td><td>" + tec4 + "</td><td>" + out4 + "</td></tr>");
             }
             else if (IDsetorAvaliada.Equals(3)) //"Serviços gerais"))
             {
                 sw.WriteLine("<tr><th>Resposta</th><th>Total</th><th>Cozinha</th><th>Enfermagem</th><th bgcolor=#00ffff>Serviços gerais</th><th>Técnica</th><th>Outros</th></tr>");
-                sw.WriteLine("<tr><td align=\"left\">" + answer1[0] + "</td><td>" + tot1 + "</td><td>" + Coz1 + "</td><td>" + enf1 + "</td><td bgcolor=#00ffff>" + sge1 + "</td><td>" + tec1 + "</td><td>" + out1 + "</td></tr>");
-                sw.WriteLine("<tr><td align=\"left\">" + answer1[1] + "</td><td>" + tot2 + "</td><td>" + Coz2 + "</td><td>" + enf2 + "</td><td bgcolor=#00ffff>" + sge2 + "</td><td>" + tec2 + "</td><td>" + out2 + "</td></tr>");
-                sw.WriteLine("<tr><td align=\"left\">" + answer1[2] + "</td><td>" + tot3 + "</td><td>" + Coz3 + "</td><td>" + enf3 + "</td><td bgcolor=#00ffff>" + sge3 + "</td><td>" + tec3 + "</td><td>" + out3 + "</td></tr>");
-                sw.WriteLine("<tr><td align=\"left\">" + answer1[3] + "</td><td>" + tot4 + "</td><td>" + Coz4 + "</td><td>" + enf4 + "</td><td bgcolor=#00ffff>" + sge4 + "</td><td>" + tec4 + "</td><td>" + out4 + "</td></tr>");
+                sw.WriteLine("<tr><td align=\"left\">" + resp[0] + "</td><td>" + tot1 + "</td><td>" + Coz1 + "</td><td>" + enf1 + "</td><td bgcolor=#00ffff>" + sge1 + "</td><td>" + tec1 + "</td><td>" + out1 + "</td></tr>");
+                sw.WriteLine("<tr><td align=\"left\">" + resp[1] + "</td><td>" + tot2 + "</td><td>" + Coz2 + "</td><td>" + enf2 + "</td><td bgcolor=#00ffff>" + sge2 + "</td><td>" + tec2 + "</td><td>" + out2 + "</td></tr>");
+                sw.WriteLine("<tr><td align=\"left\">" + resp[2] + "</td><td>" + tot3 + "</td><td>" + Coz3 + "</td><td>" + enf3 + "</td><td bgcolor=#00ffff>" + sge3 + "</td><td>" + tec3 + "</td><td>" + out3 + "</td></tr>");
+                sw.WriteLine("<tr><td align=\"left\">" + resp[3] + "</td><td>" + tot4 + "</td><td>" + Coz4 + "</td><td>" + enf4 + "</td><td bgcolor=#00ffff>" + sge4 + "</td><td>" + tec4 + "</td><td>" + out4 + "</td></tr>");
             }
             else if (IDsetorAvaliada.Equals(4)) //("Técnica"))
             {
                 sw.WriteLine("<tr><th>Resposta</th><th>Total</th><th>Cozinha</th><th>Enfermagem</th><th>Serviços gerais</th><th bgcolor=#FA58F4>Técnica</th><th>Outros</th></tr>");
-                sw.WriteLine("<tr><td align=\"left\">" + answer1[0] + "</td><td>" + tot1 + "</td><td>" + Coz1 + "</td><td>" + enf1 + "</td><td>" + sge1 + "</td><td bgcolor=#FA58F4>" + tec1 + "</td><td>" + out1 + "</td></tr>");
-                sw.WriteLine("<tr><td align=\"left\">" + answer1[1] + "</td><td>" + tot2 + "</td><td>" + Coz2 + "</td><td>" + enf2 + "</td><td>" + sge2 + "</td><td bgcolor=#FA58F4>" + tec2 + "</td><td>" + out2 + "</td></tr>");
-                sw.WriteLine("<tr><td align=\"left\">" + answer1[2] + "</td><td>" + tot3 + "</td><td>" + Coz3 + "</td><td>" + enf3 + "</td><td>" + sge3 + "</td><td bgcolor=#FA58F4>" + tec3 + "</td><td>" + out3 + "</td></tr>");
-                sw.WriteLine("<tr><td align=\"left\">" + answer1[3] + "</td><td>" + tot4 + "</td><td>" + Coz4 + "</td><td>" + enf4 + "</td><td>" + sge4 + "</td><td bgcolor=#FA58F4>" + tec4 + "</td><td>" + out4 + "</td></tr>");
+                sw.WriteLine("<tr><td align=\"left\">" + resp[0] + "</td><td>" + tot1 + "</td><td>" + Coz1 + "</td><td>" + enf1 + "</td><td>" + sge1 + "</td><td bgcolor=#FA58F4>" + tec1 + "</td><td>" + out1 + "</td></tr>");
+                sw.WriteLine("<tr><td align=\"left\">" + resp[1] + "</td><td>" + tot2 + "</td><td>" + Coz2 + "</td><td>" + enf2 + "</td><td>" + sge2 + "</td><td bgcolor=#FA58F4>" + tec2 + "</td><td>" + out2 + "</td></tr>");
+                sw.WriteLine("<tr><td align=\"left\">" + resp[2] + "</td><td>" + tot3 + "</td><td>" + Coz3 + "</td><td>" + enf3 + "</td><td>" + sge3 + "</td><td bgcolor=#FA58F4>" + tec3 + "</td><td>" + out3 + "</td></tr>");
+                sw.WriteLine("<tr><td align=\"left\">" + resp[3] + "</td><td>" + tot4 + "</td><td>" + Coz4 + "</td><td>" + enf4 + "</td><td>" + sge4 + "</td><td bgcolor=#FA58F4>" + tec4 + "</td><td>" + out4 + "</td></tr>");
             }
             else if (IDsetorAvaliada.Equals(5)) //"Outros"))
             {
                 sw.WriteLine("<tr><th>Resposta</th><th>Total</th><th>Cozinha</th><th>Enfermagem</th><th>Serviços gerais</th><th>Técnica</th><th bgcolor=#FF8000>Outros</th></tr>");
-                sw.WriteLine("<tr><td align=\"left\">" + answer1[0] + "</td><td>" + tot1 + "</td><td>" + Coz1 + "</td><td>" + enf1 + "</td><td>" + sge1 + "</td><td>" + tec1 + "</td><td bgcolor=#FF8000>" + out1 + "</td></tr>");
-                sw.WriteLine("<tr><td align=\"left\">" + answer1[1] + "</td><td>" + tot2 + "</td><td>" + Coz2 + "</td><td>" + enf2 + "</td><td>" + sge2 + "</td><td>" + tec2 + "</td><td bgcolor=#FF8000>" + out2 + "</td></tr>");
-                sw.WriteLine("<tr><td align=\"left\">" + answer1[2] + "</td><td>" + tot3 + "</td><td>" + Coz3 + "</td><td>" + enf3 + "</td><td>" + sge3 + "</td><td>" + tec3 + "</td><td bgcolor=#FF8000>" + out3 + "</td></tr>");
-                sw.WriteLine("<tr><td align=\"left\">" + answer1[3] + "</td><td>" + tot4 + "</td><td>" + Coz4 + "</td><td>" + enf4 + "</td><td>" + sge4 + "</td><td>" + tec4 + "</td><td bgcolor=#FF8000>" + out4 + "</td></tr>");
+                sw.WriteLine("<tr><td align=\"left\">" + resp[0] + "</td><td>" + tot1 + "</td><td>" + Coz1 + "</td><td>" + enf1 + "</td><td>" + sge1 + "</td><td>" + tec1 + "</td><td bgcolor=#FF8000>" + out1 + "</td></tr>");
+                sw.WriteLine("<tr><td align=\"left\">" + resp[1] + "</td><td>" + tot2 + "</td><td>" + Coz2 + "</td><td>" + enf2 + "</td><td>" + sge2 + "</td><td>" + tec2 + "</td><td bgcolor=#FF8000>" + out2 + "</td></tr>");
+                sw.WriteLine("<tr><td align=\"left\">" + resp[2] + "</td><td>" + tot3 + "</td><td>" + Coz3 + "</td><td>" + enf3 + "</td><td>" + sge3 + "</td><td>" + tec3 + "</td><td bgcolor=#FF8000>" + out3 + "</td></tr>");
+                sw.WriteLine("<tr><td align=\"left\">" + resp[3] + "</td><td>" + tot4 + "</td><td>" + Coz4 + "</td><td>" + enf4 + "</td><td>" + sge4 + "</td><td>" + tec4 + "</td><td bgcolor=#FF8000>" + out4 + "</td></tr>");
             }
         }
     }
