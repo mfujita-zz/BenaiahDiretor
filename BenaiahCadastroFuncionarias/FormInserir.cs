@@ -25,21 +25,29 @@ namespace BenaiahCadastroFuncionarias
 
         private void btnInserir_Click(object sender, EventArgs e)
         {
-            SqlConnection conexao = new SqlConnection("Server=ULTRABOOK\\SQLEXPRESS;Database=Benaiah;Trusted_Connection=True;");
+            AcessoBancoDeDados bd = new AcessoBancoDeDados();
+            SqlConnection conexao = new SqlConnection(bd.BancoDados());
             conexao.Open();
 
-            //Obtem o número de registros para encontrar o próximo índice vago
-            SqlCommand comando = new SqlCommand("select count(*) from funcionaria", conexao);
-            int qtdeRegistros = (int)comando.ExecuteScalar();
+            //Obtém o IDsetor a partir do que foi escolhido no Combobox cbSetor.
+            SqlCommand comando = new SqlCommand("select IDsetor from atuacao where setor = @setor", conexao);
+            comando.Parameters.AddWithValue("@setor", cbSetor.Text);
+            int IDsetor = 0;
+            using (SqlDataReader reader = comando.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    IDsetor = Convert.ToInt16(reader["IDsetor"].ToString().Trim());
+                }
+            }
 
-            comando = new SqlCommand("insert into funcionaria (ID_func, nome, setor, senha) values (@ID, @nome, @setor, @senha)", conexao);
-            comando.Parameters.AddWithValue("@ID", qtdeRegistros);
+            comando = new SqlCommand("insert into funcionaria (nome, IDsetor, senha) values (@nome, @IDsetor, @senha)", conexao);
             comando.Parameters.AddWithValue("@nome", txtNome.Text.Trim());
-            comando.Parameters.AddWithValue("@setor", txtSetor.Text.Trim());
+            comando.Parameters.AddWithValue("@IDsetor", IDsetor);
             comando.Parameters.AddWithValue("@senha", txtSenha.Text.Trim());
             comando.ExecuteNonQuery();
             conexao.Close();
-            MessageBox.Show("Funcionária " + txtNome.Text.Trim() + "\nSetor " + txtSetor.Text.Trim() + "\nSenha " + txtSenha.Text + "\nadicionado com sucesso.");
+            MessageBox.Show("Funcionária " + txtNome.Text.Trim() + "\nSetor " + cbSetor.Text.Trim() + "\nSenha " + txtSenha.Text + "\nadicionado com sucesso.");
             Close();
         }
     }

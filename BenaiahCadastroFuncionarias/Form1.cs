@@ -40,18 +40,25 @@ namespace BenaiahCadastroFuncionarias
         {
             Size = new Size(Screen.PrimaryScreen.WorkingArea.Width * 80 / 100, Screen.PrimaryScreen.WorkingArea.Height);
             Location = new Point(0, 0);
-            dgv.Size = new Size(ClientRectangle.Width * 95 / 100, ClientRectangle.Height * 85 / 100);
+            dgv.Size = new Size(ClientRectangle.Width * 95 / 100, ClientRectangle.Height * 80 / 100);
             nome.Width = dgv.Width * 40 / 100;
             setor.Width = dgv.Width * 30 / 100;
             senha.Width = dgv.Width * 26 / 100;
+            lblDataInicial.Location = new Point(dgv.Left, dgv.Height + (ClientRectangle.Height - dgv.Bottom) / 2);
+            lblDataFinal.Location = new Point(dgv.Left, /*dgv.Height +*/ lblDataInicial.Bottom + 20);
+            mtxtDataInical.Location = new Point(lblDataInicial.Right + 20, dgv.Height + (ClientRectangle.Height - dgv.Bottom) / 2);
+            mtxtDataFinal.Location = new Point(lblDataInicial.Right + 20, lblDataInicial.Bottom + 20);
             //Botão Atualizar
-            btnRelatorio.Location = new Point(dgv.Left, dgv.Height + (ClientRectangle.Height - dgv.Bottom) / 2);
+            btnRelatorio.Location = new Point(mtxtDataInical.Right + 20 /*dgv.Left*/, dgv.Height + (ClientRectangle.Height - dgv.Bottom) / 2);
             //Botão Inserir
             btnInserir.Location = new Point((ClientRectangle.Width - btnInserir.Width) / 2, dgv.Height + (ClientRectangle.Height - dgv.Bottom) / 2);
             //Botão Excluir
             btnExcluir.Location = new Point(dgv.Right - btnExcluir.Width, dgv.Height + (ClientRectangle.Height - dgv.Bottom) / 2);
             ListaTodosDados();
             PopulaPerguntasResposta();
+
+            mtxtDataInical.Text = "10/03/2018";
+            mtxtDataFinal.Text = "04/04/2018";
         }
 
         private void PopulaPerguntasResposta()
@@ -100,10 +107,11 @@ namespace BenaiahCadastroFuncionarias
         {
             dgv.Rows.Clear();
 
-            SqlConnection conexao = new SqlConnection("Server=ULTRABOOK\\SQLEXPRESS;Database=LarBenaiah;Trusted_Connection=True;");
+            AcessoBancoDeDados bd = new AcessoBancoDeDados();
+            SqlConnection conexao = new SqlConnection(bd.BancoDados());
             conexao.Open();
 
-            SqlCommand comando = new SqlCommand("select nome, setor, senha from Funcionaria f, atuacao a where f.IDsetor = a.IDsetor ", conexao);
+            SqlCommand comando = new SqlCommand("select nome, setor, senha from Funcionaria f, atuacao a where f.IDsetor = a.IDsetor order by setor", conexao);
 
             using (SqlDataReader reader = comando.ExecuteReader())
             {
@@ -169,12 +177,37 @@ namespace BenaiahCadastroFuncionarias
             }
         }
 
-        private void btnRelatorio_Click(object sender, EventArgs e)
+        private bool ValidarData(string dataFormatoLongo)
         {
-            //https://www.codeproject.com/articles/99143/backgroundworker-class-sample-for-beginners
-            bw = new BackgroundWorker();
-            bw.DoWork += Bw_DoWork;
-            bw.RunWorkerAsync();
+            try
+            {
+                char[] data = dataFormatoLongo.ToCharArray();
+                int dia = Convert.ToInt32((data[0].ToString() + data[1].ToString()).ToString());
+                int mes = Convert.ToInt32((data[3].ToString() + data[4].ToString()).ToString());
+                int ano = Convert.ToInt32((data[6].ToString() + data[7].ToString() + data[8].ToString() + data[9].ToString()).ToString());
+                if ((dia > 0 && dia < 32) &&
+                    (mes > 0 && mes < 13) &&
+                    (ano > 2017 && ano < 2199))
+                    return true;
+            }
+            catch { }
+            return false;
+        }
+
+        private void btnRelatorio_Click(object sender, EventArgs e) // Chama ValidarData antes de chamar a Thread.
+        {
+            if (ValidarData(mtxtDataInical.Text) && ValidarData(mtxtDataFinal.Text))
+            {
+                //https://www.codeproject.com/articles/99143/backgroundworker-class-sample-for-beginners
+                bw = new BackgroundWorker();
+                bw.DoWork += Bw_DoWork;
+                bw.RunWorkerAsync();
+                btnRelatorio.Enabled = false;
+            }
+            else 
+            {
+                MessageBox.Show("Data inválida.", "Erro!");
+            }
         }
 
         private void Bw_DoWork(object sender, DoWorkEventArgs e)
@@ -195,43 +228,53 @@ namespace BenaiahCadastroFuncionarias
                     nomeAvaliada = reader["nome"].ToString().Trim();
                     IDfuncAvaliada = Convert.ToInt16(reader["IDfunc"].ToString().Trim());
                     IDsetorAvaliada = Convert.ToInt16(reader["IDsetor"].ToString().Trim());
+                    int numeroPergunta = 1;
 
-                    RealizaQueries(nomeAvaliada, IDfuncAvaliada, IDsetorAvaliada);
+                    FileStream fsIndividual = new FileStream(nomeAvaliada + ".html", FileMode.Create);
+                    StreamWriter sw = new StreamWriter(fsIndividual);
+                    sw.WriteLine("<html>");
+                    sw.WriteLine("<meta charset=UTF8>");
+                    sw.WriteLine("<body>");
+                    sw.WriteLine("<style>");
+                    sw.WriteLine("td { text-align:center; width: 160px; }");
+                    sw.WriteLine("</style>");
+                    sw.WriteLine("<h2><div align=center>" + nomeAvaliada + "</div></h2>");
+                    sw.WriteLine("<p>");
+
+                    //obtém o último número de pergunta e vai como parâmetro para RealizaQueries (question2, answer2)
+                    numeroPergunta = RealizaQueries(nomeAvaliada, IDfuncAvaliada, IDsetorAvaliada, question1, answer1, numeroPergunta, sw);
+                    RealizaQueries(nomeAvaliada, IDfuncAvaliada, IDsetorAvaliada, question2, answer2, numeroPergunta, sw);
+
+                    sw.WriteLine("</body>");
+                    sw.WriteLine("</html>");
+                    sw.Close();
                 }
             }
 
             MessageBox.Show("Finalizado. Total = " + megaTotalizador);
+            btnRelatorio.Enabled = true;
         }
 
-        private void RealizaQueries(string nome, int IDfuncAvaliada, int IDsetorAvaliada)
+        private int RealizaQueries(string nome, int IDfuncAvaliada, int IDsetorAvaliada, List<string> listaPergunta, List<string> listaResposta, int numeroPergunta, StreamWriter sw)
         {
             AcessoBancoDeDados bd = new AcessoBancoDeDados();
             SqlConnection conexao = new SqlConnection(bd.BancoDados());
             conexao.Open();
 
-            FileStream fsIndividual = new FileStream(nome + ".html", FileMode.Create);
-            StreamWriter sw = new StreamWriter(fsIndividual);
-            sw.WriteLine("<html>");
-            sw.WriteLine("<meta charset=UTF8>");
-            sw.WriteLine("<body>");
-            sw.WriteLine("<style>");
-            sw.WriteLine("td { text-align:center; width: 160px; }");
-            sw.WriteLine("</style>");
-            sw.WriteLine("<h2><div align=center>" + nome + "</div></h2>");
-            sw.WriteLine("<p>");
-
-            foreach (var pergunta in question1)
+            foreach (var pergunta in listaPergunta)
             {
-                sw.WriteLine("<p>" + pergunta);
-                foreach (var resposta in answer1)
+                sw.WriteLine("<p>" + numeroPergunta + ". " + pergunta);
+                foreach (var resposta in listaResposta)
                 {
                     for (int IDsetorAvaliadora = 1; IDsetorAvaliadora <= 5; IDsetorAvaliadora++)
                     {
-                        SqlCommand comando = new SqlCommand("select count(*) as frequencia from Resposta, Funcionaria where Funcionaria.IDfunc = resposta.IDfuncAvaliada and IDfuncAvaliada = @IDfuncAvaliada and IDsetorAvaliadora = @IDsetorAvaliadora and pergunta = @pergunta and resposta = @resposta", conexao);
+                        SqlCommand comando = new SqlCommand("select count(*) as frequencia from Resposta, Funcionaria where Funcionaria.IDfunc = resposta.IDfuncAvaliada and IDfuncAvaliada = @IDfuncAvaliada and IDsetorAvaliadora = @IDsetorAvaliadora and pergunta = @pergunta and resposta = @resposta and dataHoraResposta between @inicial and @final", conexao);
                         comando.Parameters.AddWithValue("@IDfuncAvaliada", IDfuncAvaliada);
                         comando.Parameters.AddWithValue("@IDsetorAvaliadora", IDsetorAvaliadora);
                         comando.Parameters.AddWithValue("@pergunta", pergunta);
                         comando.Parameters.AddWithValue("@resposta", resposta);
+                        comando.Parameters.AddWithValue("@inicial", mtxtDataInical.Text);
+                        comando.Parameters.AddWithValue("@final", mtxtDataFinal.Text);
                         using (SqlDataReader reader = comando.ExecuteReader())
                         {
                             while (reader.Read())
@@ -285,83 +328,108 @@ namespace BenaiahCadastroFuncionarias
                 FazTabela(IDsetorAvaliada, answer1, sw);
 
                 sw.WriteLine("</table>");
+
+                numeroPergunta++;
             }
 
-            if (IDsetorAvaliada == 4)
-            {
-                foreach (var pergunta2 in question2)
-                {
-                    sw.WriteLine("<p>" + pergunta2);
-                    foreach (var resposta2 in answer2)
-                    {
-                        for (int IDsetorAvaliadora = 1; IDsetorAvaliadora <= 5; IDsetorAvaliadora++)
-                        {
-                            SqlCommand comando = new SqlCommand("select count(*) as frequencia from Resposta, Funcionaria where Funcionaria.IDfunc = resposta.IDfuncAvaliada and IDfuncAvaliada = @IDfuncAvaliada and IDsetorAvaliadora = @IDsetorAvaliadora and pergunta = @pergunta and resposta = @resposta", conexao);
-                            comando.Parameters.AddWithValue("@IDfuncAvaliada", IDfuncAvaliada);
-                            comando.Parameters.AddWithValue("@IDsetorAvaliadora", IDsetorAvaliadora);
-                            comando.Parameters.AddWithValue("@pergunta", pergunta2);
-                            comando.Parameters.AddWithValue("@resposta", resposta2);
-                            using (SqlDataReader reader = comando.ExecuteReader())
-                            {
-                                while (reader.Read())
-                                {
-
-                                    if (IDsetorAvaliadora == 1)
-                                    {
-                                        if (resposta2.Equals(answer2[0])) { Coz1 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
-                                        else if (resposta2.Equals(answer2[1])) { Coz2 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
-                                        else if (resposta2.Equals(answer2[2])) { Coz3 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
-                                        else if (resposta2.Equals(answer2[3])) { Coz4 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
-                                    }
-                                    if (IDsetorAvaliadora == 2)
-                                    {
-                                        if (resposta2.Equals(answer2[0])) { enf1 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
-                                        else if (resposta2.Equals(answer2[1])) { enf2 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
-                                        else if (resposta2.Equals(answer2[2])) { enf3 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
-                                        else if (resposta2.Equals(answer2[3])) { enf4 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
-                                    }
-                                    if (IDsetorAvaliadora == 3)
-                                    {
-                                        if (resposta2.Equals(answer2[0])) { sge1 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
-                                        else if (resposta2.Equals(answer2[1])) { sge2 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
-                                        else if (resposta2.Equals(answer2[2])) { sge3 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
-                                        else if (resposta2.Equals(answer2[3])) { sge4 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
-                                    }
-                                    if (IDsetorAvaliadora == 4)
-                                    {
-                                        if (resposta2.Equals(answer2[0])) { tec1 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
-                                        else if (resposta2.Equals(answer2[1])) { tec2 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
-                                        else if (resposta2.Equals(answer2[2])) { tec3 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
-                                        else if (resposta2.Equals(answer2[3])) { tec4 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
-                                    }
-                                    if (IDsetorAvaliadora == 5)
-                                    {
-                                        if (resposta2.Equals(answer2[0])) { out1 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
-                                        else if (resposta2.Equals(answer2[1])) { out2 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
-                                        else if (resposta2.Equals(answer2[2])) { out3 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
-                                        else if (resposta2.Equals(answer2[3])) { out4 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    sw.WriteLine("<table border=1>");
-                    sw.Flush();
-                    tot1 = Coz1 + enf1 + sge1 + tec1 + out1;
-                    tot2 = Coz2 + enf2 + sge2 + tec2 + out2;
-                    tot3 = Coz3 + enf3 + sge3 + tec3 + out3;
-                    tot4 = Coz4 + enf4 + sge4 + tec4 + out4;
-
-                    FazTabela(IDsetorAvaliada, answer2, sw);
-
-                    sw.WriteLine("</table>");
-                }
-            }
-            sw.WriteLine("</body>");
-            sw.WriteLine("</html>");
-            sw.Close();
+            return numeroPergunta;
         }
+
+        //private void RealizaQueries(string nome, int IDfuncAvaliada, int IDsetorAvaliada)
+        //{
+        //    numeroPergunta = 1;
+
+        //    AcessoBancoDeDados bd = new AcessoBancoDeDados();
+        //    SqlConnection conexao = new SqlConnection(bd.BancoDados());
+        //    conexao.Open();
+
+        //    FileStream fsIndividual = new FileStream(nome + ".html", FileMode.Create);
+        //    StreamWriter sw = new StreamWriter(fsIndividual);
+        //    sw.WriteLine("<html>");
+        //    sw.WriteLine("<meta charset=UTF8>");
+        //    sw.WriteLine("<body>");
+        //    sw.WriteLine("<style>");
+        //    sw.WriteLine("td { text-align:center; width: 160px; }");
+        //    sw.WriteLine("</style>");
+        //    sw.WriteLine("<h2><div align=center>" + nome + "</div></h2>");
+        //    sw.WriteLine("<p>");
+
+        //    foreach (var pergunta in question1)
+        //    {
+        //        sw.WriteLine("<p>" + numeroPergunta + ". " + pergunta);
+        //        foreach (var resposta in answer1)
+        //        {
+        //            for (int IDsetorAvaliadora = 1; IDsetorAvaliadora <= 5; IDsetorAvaliadora++)
+        //            {
+        //                SqlCommand comando = new SqlCommand("select count(*) as frequencia from Resposta, Funcionaria where Funcionaria.IDfunc = resposta.IDfuncAvaliada and IDfuncAvaliada = @IDfuncAvaliada and IDsetorAvaliadora = @IDsetorAvaliadora and pergunta = @pergunta and resposta = @resposta and dataHoraResposta between '31/03/2018' and '01/04/2018'", conexao);
+        //                comando.Parameters.AddWithValue("@IDfuncAvaliada", IDfuncAvaliada);
+        //                comando.Parameters.AddWithValue("@IDsetorAvaliadora", IDsetorAvaliadora);
+        //                comando.Parameters.AddWithValue("@pergunta", pergunta);
+        //                comando.Parameters.AddWithValue("@resposta", resposta);
+        //                using (SqlDataReader reader = comando.ExecuteReader())
+        //                {
+        //                    while (reader.Read())
+        //                    {
+        //                        if (IDsetorAvaliadora == 1)
+        //                        {
+        //                            if (resposta.Equals(answer1[0])) { Coz1 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+        //                            else if (resposta.Equals(answer1[1])) { Coz2 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+        //                            else if (resposta.Equals(answer1[2])) { Coz3 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+        //                            else if (resposta.Equals(answer1[3])) { Coz4 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+        //                        }
+        //                        if (IDsetorAvaliadora == 2)
+        //                        {
+        //                            if (resposta.Equals(answer1[0])) { enf1 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+        //                            else if (resposta.Equals(answer1[1])) { enf2 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+        //                            else if (resposta.Equals(answer1[2])) { enf3 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+        //                            else if (resposta.Equals(answer1[3])) { enf4 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+        //                        }
+        //                        if (IDsetorAvaliadora == 3)
+        //                        {
+        //                            if (resposta.Equals(answer1[0])) { sge1 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+        //                            else if (resposta.Equals(answer1[1])) { sge2 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+        //                            else if (resposta.Equals(answer1[2])) { sge3 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+        //                            else if (resposta.Equals(answer1[3])) { sge4 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+        //                        }
+        //                        if (IDsetorAvaliadora == 4)
+        //                        {
+        //                            if (resposta.Equals(answer1[0])) { tec1 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+        //                            else if (resposta.Equals(answer1[1])) { tec2 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+        //                            else if (resposta.Equals(answer1[2])) { tec3 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+        //                            else if (resposta.Equals(answer1[3])) { tec4 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+        //                        }
+        //                        if (IDsetorAvaliadora == 5)
+        //                        {
+        //                            if (resposta.Equals(answer1[0])) { out1 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+        //                            else if (resposta.Equals(answer1[1])) { out2 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+        //                            else if (resposta.Equals(answer1[2])) { out3 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+        //                            else if (resposta.Equals(answer1[3])) { out4 = Convert.ToInt16(reader["frequencia"].ToString().Trim()); }
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //        }
+        //        sw.WriteLine("<table border=1>");
+
+        //        tot1 = Coz1 + enf1 + sge1 + tec1 + out1;
+        //        tot2 = Coz2 + enf2 + sge2 + tec2 + out2;
+        //        tot3 = Coz3 + enf3 + sge3 + tec3 + out3;
+        //        tot4 = Coz4 + enf4 + sge4 + tec4 + out4;
+
+        //        FazTabela(IDsetorAvaliada, answer1, sw);
+
+        //        sw.WriteLine("</table>");
+
+        //        numeroPergunta++;
+        //    }
+
+
+        //    sw.WriteLine("</body>");
+        //    sw.WriteLine("</html>");
+        //    sw.Close();
+
+
+        //}
 
         private void FazTabela(int IDsetorAvaliada, List<string> resp, StreamWriter sw)
         {
